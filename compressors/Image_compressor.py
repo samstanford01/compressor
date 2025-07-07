@@ -7,8 +7,8 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from Compressors.base_compressor import BaseCompressor
-from config import CompressionConfig
+from compressors.base_compressor import BaseCompressor
+from compresssor_config import CompressionConfig
 
 
 # Allow loading of truncated images

@@ -2,7 +2,7 @@ from pathlib import Path
 from config import Config as BaseConfig
 
 class CompressionConfig(BaseConfig):
-    """Extended configuration for compression settings"""
+    """configuration for compression settings"""
     
     def __init__(self):
         super().__init__()

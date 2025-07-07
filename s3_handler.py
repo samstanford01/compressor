@@ -32,13 +32,13 @@ class S3Handler:
             
             # Test the connection by listing buckets
             self.s3_client.list_buckets()
-            logger.info("✅ S3 connection successful!")
+            logger.info("S3 connection successful!")
             
         except NoCredentialsError:
-            logger.error("❌ AWS credentials not found! Check your .env file")
+            logger.error("AWS credentials not found! Check your .env file")
             raise
         except Exception as e:
-            logger.error(f"❌ S3 connection failed: {e}")
+            logger.error(f"S3 connection failed: {e}")
             raise
     
     def list_images_in_bucket(self, bucket_name: str, max_files: int = 100) -> List[Dict]:
@@ -53,7 +53,7 @@ class S3Handler:
             List of dictionaries with file information
         """
         try:
-            logger.info(f"📋 Listing images in bucket: {bucket_name}")
+            logger.info(f"Listing images in bucket: {bucket_name}")
             
             # Use S3 client to list objects
             response = self.s3_client.list_objects_v2(
@@ -84,14 +84,14 @@ class S3Handler:
                         'extension': file_extension
                     })
             
-            logger.info(f"✅ Found {len(image_files)} image files")
+            logger.info(f"Found {len(image_files)} image files")
             return image_files
             
         except ClientError as e:
-            logger.error(f"❌ Error listing files in bucket {bucket_name}: {e}")
+            logger.error(f"Error listing files in bucket {bucket_name}: {e}")
             return []
         except Exception as e:
-            logger.error(f"❌ Unexpected error: {e}")
+            logger.error(f"Unexpected error: {e}")
             return []
     
     def download_file_from_s3(self, bucket_name: str, s3_key: str) -> Optional[Path]:
@@ -116,32 +116,32 @@ class S3Handler:
             temp_path = Path(temp_file.name)
             temp_file.close()
             
-            logger.info(f"⬇️ Downloading s3://{bucket_name}/{s3_key}")
-            logger.info(f"📁 Saving to: {temp_path}")
+            logger.info(f"Downloading s3://{bucket_name}/{s3_key}")
+            logger.info(f"Saving to: {temp_path}")
             
             # Download the file
             self.s3_client.download_file(bucket_name, s3_key, str(temp_path))
             
             # Check if file was downloaded successfully
             if temp_path.exists() and temp_path.stat().st_size > 0:
-                logger.info(f"✅ Downloaded successfully: {temp_path.stat().st_size} bytes")
+                logger.info(f"Downloaded successfully: {temp_path.stat().st_size} bytes")
                 return temp_path
             else:
-                logger.error("❌ Downloaded file is empty or doesn't exist")
+                logger.error("Downloaded file is empty or doesn't exist")
                 return None
                 
         except ClientError as e:
             error_code = e.response['Error']['Code']
             if error_code == 'NoSuchKey':
-                logger.error(f"❌ File not found: s3://{bucket_name}/{s3_key}")
+                logger.error(f"File not found: s3://{bucket_name}/{s3_key}")
             elif error_code == 'NoSuchBucket':
-                logger.error(f"❌ Bucket not found: {bucket_name}")
+                logger.error(f"Bucket not found: {bucket_name}")
             else:
-                logger.error(f"❌ AWS error downloading file: {e}")
+                logger.error(f"AWS error downloading file: {e}")
             return None
             
         except Exception as e:
-            logger.error(f"❌ Error downloading file: {e}")
+            logger.error(f"Error downloading file: {e}")
             return None
     
     def upload_file_to_s3(self, local_file_path: Path, bucket_name: str, s3_key: str) -> bool:
@@ -154,11 +154,11 @@ class S3Handler:
             s3_key: S3 key (path) for the uploaded file
             
         Returns:
-            True if successful, False otherwise
+            True if successful, error otherwise
         """
         try:
             if not local_file_path.exists():
-                logger.error(f"❌ Local file not found: {local_file_path}")
+                logger.error(f"Local file not found: {local_file_path}")
                 return False
             
             logger.info(f"⬆️ Uploading {local_file_path} to s3://{bucket_name}/{s3_key}")
@@ -179,14 +179,14 @@ class S3Handler:
                 ExtraArgs=extra_args
             )
             
-            logger.info(f"✅ Upload successful: s3://{bucket_name}/{s3_key}")
+            logger.info(f"Upload successful: s3://{bucket_name}/{s3_key}")
             return True
             
         except ClientError as e:
-            logger.error(f"❌ AWS error uploading file: {e}")
+            logger.error(f"AWS error uploading file: {e}")
             return False
         except Exception as e:
-            logger.error(f"❌ Error uploading file: {e}")
+            logger.error(f"Error uploading file: {e}")
             return False
     
     def file_exists_in_s3(self, bucket_name: str, s3_key: str) -> bool:
@@ -198,7 +198,7 @@ class S3Handler:
             s3_key: S3 object key
             
         Returns:
-            True if file exists, False otherwise
+            True if file exists, error otherwise
         """
         try:
             self.s3_client.head_object(Bucket=bucket_name, Key=s3_key)
@@ -207,7 +207,7 @@ class S3Handler:
             if e.response['Error']['Code'] == '404':
                 return False
             else:
-                logger.error(f"❌ Error checking if file exists: {e}")
+                logger.error(f"Error checking if file exists: {e}")
                 return False
     
     def get_file_size(self, bucket_name: str, s3_key: str) -> Optional[int]:
@@ -225,7 +225,7 @@ class S3Handler:
             response = self.s3_client.head_object(Bucket=bucket_name, Key=s3_key)
             return response['ContentLength']
         except ClientError as e:
-            logger.error(f"❌ Error getting file size: {e}")
+            logger.error(f"Error getting file size: {e}")
             return None
     
     def _get_content_type(self, file_extension: str) -> Optional[str]:
@@ -260,6 +260,6 @@ class S3Handler:
         try:
             if file_path.exists():
                 file_path.unlink()
-                logger.info(f"🗑️ Cleaned up temp file: {file_path}")
+                logger.info(f"Cleaned up temp file: {file_path}")
         except Exception as e:
-            logger.warning(f"⚠️ Could not delete temp file {file_path}: {e}")
+            logger.warning(f"Could not delete temp file {file_path}: {e}")
