@@ -361,7 +361,7 @@ async def process_image_background(image_key: str, compress: bool, quality: str)
         
         s3 = get_s3_handler()
         
-        # Step 1: Download from source bucket
+        # Download from source bucket
         logger.info(f"Downloading {image_key}...")
         temp_file = s3.download_file_from_s3(config.SOURCE_BUCKET, image_key)
         
@@ -372,7 +372,7 @@ async def process_image_background(image_key: str, compress: bool, quality: str)
         processed_file = temp_file
         original_size = temp_file.stat().st_size
         
-        # Step 2: Apply compression if requested
+        # Apply compression if requested
         if compress:
             logger.info(f"Compressing {image_key} with {quality} quality...")
             
@@ -398,7 +398,7 @@ async def process_image_background(image_key: str, compress: bool, quality: str)
                 logger.info("Using original file instead")
                 processed_file = temp_file
         
-        # Step 3: Upload to destination bucket
+        # Upload to destination bucket
         dest_key = f"compressed/{image_key}" if compress else f"copied/{image_key}"
         logger.info(f"Uploading to {dest_key}...")
         
@@ -407,7 +407,7 @@ async def process_image_background(image_key: str, compress: bool, quality: str)
         if upload_success:
             logger.info(f"Successfully processed {image_key}")
             
-            # Log final statistics
+            #final statistics
             final_size = processed_file.stat().st_size
             if compress and final_size != original_size:
                 ratio = (1 - final_size / original_size) * 100
@@ -415,7 +415,7 @@ async def process_image_background(image_key: str, compress: bool, quality: str)
         else:
             logger.error(f"Failed to upload {image_key}")
         
-        # Step 4: Cleanup temporary files
+        #  Cleanup temporary files
         s3.cleanup_temp_file(temp_file)
         if processed_file != temp_file:
             s3.cleanup_temp_file(processed_file)
