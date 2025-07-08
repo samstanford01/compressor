@@ -9,21 +9,19 @@ import sys
 
 from config import Config
 from s3_handler import S3Handler
-# If you want to use mock mode, uncomment this instead:
-# from s3_handler_mock import S3HandlerMock as S3Handler
 
-# Add your existing compression service
+# Ensure the current directory is in the path for imports
 sys.path.insert(0, str(Path(__file__).parent))
 from services.compression_service import CompressionService
 from compressors.Image_compressor import ImageCompressor
 
-# Set up logging
+#logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Create FastAPI app
 app = FastAPI(
-    title="MammalWeb Image Processing API",
+    title="MammalWeb Image Compression API",
     description="API for processing images from S3 buckets",
     version="1.0.0"
 )
@@ -87,12 +85,12 @@ async def health_check():
             "timestamp": datetime.now().isoformat()
         }
     except Exception as e:
-        raise HTTPException(status_code=503, detail=f"Service unhealthy: {str(e)}")
+        raise HTTPException(status_code=503, detail=f"S3 connection error: {str(e)}")
 
 @app.get("/images/list")
 async def list_images(
     max_files: int = Query(50, description="Maximum number of files to return", ge=1, le=1000),
-    file_type: Optional[str] = Query(None, description="Filter by file extension (e.g., 'jpg', 'png')")
+    file_type: Optional[str] = Query(None, description="Filter by file extension (e.g., jpg, png)")
 ):
     """
     List all image files in the source S3 bucket
@@ -222,7 +220,7 @@ async def batch_process_images(
         
         s3 = get_s3_handler()
         
-        # Get list of files to process
+        # list of files to process
         files = s3.list_images_in_bucket(config.SOURCE_BUCKET, max_files=max_files)
         
         # Filter by file type if specified
@@ -356,7 +354,7 @@ async def get_compression_stats():
 async def process_image_background(image_key: str, compress: bool, quality: str):
     """
     Background task to process an image with compression
-    This runs asynchronously and doesn't block the API response
+    Runs asynchronously and doesn't block the API response
     """
     try:
         logger.info(f"Background processing: {image_key}")

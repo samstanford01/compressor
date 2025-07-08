@@ -8,7 +8,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from compressors.base_compressor import BaseCompressor
-from compresssor_config import CompressionConfig
+from compressors.compresssor_config import CompressionConfig
 
 
 
@@ -38,7 +38,7 @@ class VideoCompressor(BaseCompressor):
             original_size = self.get_file_size(input_path)
             output_path = self.get_output_path(input_path, "compressed_")
             
-            # First try: Stream copy (re-container without re-encoding)
+            # First try: Stream copy 
             print(f"Trying stream copy for: {input_path.name}")
             if self._try_stream_copy(input_path, output_path, original_size):
                 return output_path
