@@ -93,6 +93,7 @@ async def list_images(
     file_type: Optional[str] = Query(None, description="Filter by file extension (e.g., jpg, png)")
 ):
     """
+    Ai descriptions
     List all image files in the source S3 bucket
     
     Args:
